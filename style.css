@@ -1,0 +1,167 @@
+:root {
+    --pico-font-family: 'Zen Maru Gothic', sans-serif;
+    --pico-font-size: 16px;
+    --pico-border-radius: 16px;
+    --brand-color: #58cc02; /* Duolingo Green */
+    --brand-hover: #46a302;
+    --accent-color: #1cb0f6; /* Duolingo Blue */
+}
+
+body {
+    background-color: #ffffff;
+    min-height: 100vh;
+    color: #4b4b4b;
+    margin: 0;
+    padding: 0;
+}
+
+.logo-text {
+    font-weight: 800;
+    color: var(--brand-color);
+    font-size: 2rem;
+    margin-bottom: 0.25rem;
+}
+
+main.container-fluid {
+    padding: 1rem 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+header {
+    margin-bottom: 1rem;
+    text-align: center;
+}
+
+.layout-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 2rem;
+    align-items: start;
+}
+
+/* シミュレーション側 (左) */
+#canvas-container {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    background: #ffffff;
+    border: 4px solid #e5e5e5;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 0 #e5e5e5;
+}
+
+#simulation-section footer small {
+    display: block;
+    text-align: center;
+    font-weight: 700;
+    color: #777;
+    background: #f7f7f7;
+    padding: 10px;
+    border-radius: 12px;
+}
+
+/* コントロール側 (右) */
+article {
+    border: 3px solid #e5e5e5;
+    border-radius: 20px;
+    background: white;
+    padding: 1.5rem;
+    box-shadow: 0 8px 0 #e5e5e5;
+}
+
+.main-actions {
+    margin-bottom: 1.5rem;
+}
+
+button.primary {
+    background-color: var(--brand-color);
+    border: none;
+    border-bottom: 4px solid var(--brand-hover);
+    font-weight: 800;
+    font-size: 1.2rem;
+    color: white;
+    border-radius: 16px;
+    padding: 12px;
+    transition: all 0.1s;
+    width: 100%;
+}
+
+button.primary:active {
+    border-bottom: 0px solid var(--brand-hover);
+    transform: translateY(4px);
+    margin-bottom: 4px;
+}
+
+.control-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    font-weight: 700;
+    color: #555;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+input[type="range"] {
+    accent-color: var(--accent-color);
+    width: 100%;
+    margin-top: 10px;
+}
+
+.hint-text {
+    color: #ff4b4b;
+    font-weight: 700;
+    display: block;
+    margin-top: 5px;
+    background: #ffebf0;
+    padding: 8px;
+    border-radius: 8px;
+}
+
+.mass-group {
+    background: #f7f7f7;
+    border: 2px solid #e5e5e5;
+    border-radius: 16px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+.mass-group legend {
+    font-weight: 800;
+    color: #4b4b4b;
+}
+
+.hidden {
+    display: none;
+}
+
+.individual-mass-row {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 10px;
+    align-items: center;
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed #ccc;
+}
+.individual-mass-row span {
+    font-weight: 700;
+}
+
+/* レスポンシブ対応: スマホやタブレット縦持ち */
+@media (max-width: 992px) {
+    .layout-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    #canvas-container {
+        aspect-ratio: 4 / 3;
+    }
+    
+    main.container-fluid {
+        padding: 1rem;
+    }
+}
