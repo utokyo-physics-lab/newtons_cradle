@@ -3,7 +3,6 @@ const { Engine, World, Bodies, Body, Constraint, Mouse, MouseConstraint, Composi
 let engine, world;
 let pendulums = []; // { body, constraint, defaultColor, massRatio }
 let canvas;
-let mConstraint; // マウス操作用
 let draggingBody = null;
 
 // UI State
@@ -27,9 +26,6 @@ function setup() {
     // 摩擦や空気抵抗を極力減らす
     engine.gravity.y = 1;
 
-    // マウスドラッグ制約の設定
-    setupMouseInteraction();
-
     // UIのイベントリスナー設定
     setupUI();
 
@@ -37,32 +33,48 @@ function setup() {
     createCradle();
 }
 
-function setupMouseInteraction() {
-    const canvasMouse = Mouse.create(canvas.elt);
-    canvasMouse.pixelRatio = pixelDensity();
-
-    // matter.js内蔵のマウス制約を使用。ただし、紐の長さが変わらないようにstiffnessを調整してもうまくいかない場合があるため
-    // p5.jsのmousePressedなどで直接Bodyのポジションを操作する方法と併用するか、MouseConstraintに頼るかを決める。
-    // ここではMouseConstraintを利用し、表示上はconstraintのanchorsを描画する。
-    mConstraint = MouseConstraint.create(engine, {
-        mouse: canvasMouse,
-        constraint: {
-            stiffness: 0.2, // 引っ張るゴムのような強さ。高くしすぎると破綻する
-            render: { visible: false }
+function mousePressed() {
+    for (let i = 0; i < pendulums.length; i++) {
+        let p = pendulums[i];
+        let pos = p.body.position;
+        let d = dist(mouseX, mouseY, pos.x, pos.y);
+        // 玉をクリックしたか判定
+        if (d < p.radius * 1.5) {
+            draggingBody = p.body;
+            // ドラッグ中のみ物理演算の影響を受けないようにする
+            Body.setStatic(draggingBody, true);
+            break;
         }
-    });
+    }
+}
 
-    // イベントフック: つかんだ瞬間
-    Matter.Events.on(mConstraint, 'startdrag', function (event) {
-        draggingBody = event.body;
-    });
+function mouseDragged() {
+    if (draggingBody) {
+        // 対象の振り子の情報を探す
+        let pInfo = pendulums.find(p => p.body === draggingBody);
+        if (pInfo) {
+            let pivot = pInfo.constraint.pointA;
+            let dx = mouseX - pivot.x;
+            let dy = mouseY - pivot.y;
+            let angle = Math.atan2(dy, dx);
 
-    // 放した瞬間
-    Matter.Events.on(mConstraint, 'enddrag', function (event) {
+            // 紐がピンと張った状態を維持する（長さを固定）
+            let newX = pivot.x + Math.cos(angle) * STRING_LENGTH;
+            let newY = pivot.y + Math.sin(angle) * STRING_LENGTH;
+
+            Body.setPosition(draggingBody, { x: newX, y: newY });
+        }
+    }
+}
+
+function mouseReleased() {
+    if (draggingBody) {
+        // ドラッグ終了で物理演算を再開
+        Body.setStatic(draggingBody, false);
+        // 手を離した瞬間の速度はゼロにし、純粋に重力で落下させる
+        Body.setVelocity(draggingBody, { x: 0, y: 0 });
         draggingBody = null;
-    });
-
-    World.add(world, mConstraint);
+    }
 }
 
 function setupUI() {
@@ -146,7 +158,7 @@ function renderIndividualMassControls() {
 }
 
 function createCradle() {
-    // 既存のオブジェクトを消去（MouseConstraintは残す）
+    // 既存のオブジェクトを消去
     World.clear(world, true);
     pendulums = [];
 
@@ -172,12 +184,13 @@ function createCradle() {
         const radius = isUniformMass ? BOB_RADIUS : BOB_RADIUS * Math.sqrt(massRatio);
 
         const body = Bodies.circle(x, pivotBaseY + STRING_LENGTH, radius, {
-            restitution: 1.0,    // 完全弾性衝突
-            friction: 0,         // 摩擦なし
-            frictionAir: 0.0001, // 空気抵抗極小
-            frictionStatic: 0,
-            inertia: Infinity,   // 回転しないようにする
-            density: massRatio * 0.001 // 質量調整（densityを使ってmassを制御）
+            restitution: 1.0,    // 1.0で完全弾性衝突。力を100%伝える
+            friction: 0.0,       // 摩擦なし
+            frictionAir: 0.0,    // 空気抵抗なし
+            frictionStatic: 0.0,
+            slop: 0.0,           // オブジェクトのめり込みを許容しない（運動量伝達に極めて重要）
+            inertia: Infinity,   // 回転させない
+            mass: massRatio * 10 // 重さ
         });
 
         // 紐（制約）。stiffnessを1にして伸び縮みしないようにする
@@ -187,7 +200,7 @@ function createCradle() {
             pointB: { x: 0, y: 0 },
             stiffness: 1.0,
             length: STRING_LENGTH,
-            render: { visible: false } // p5で描画するのでmatterのレンダラ用は消す
+            render: { visible: false }
         });
 
         // 描画用の色を設定。質量が違うと色を変えると分かりやすい
@@ -207,23 +220,16 @@ function createCradle() {
     }
 }
 
-// マウスがcanvas外で離されたときのフェイルセーフ
-function mouseReleased() {
-    if (mConstraint && mConstraint.body) {
-        // Drag終了時の処理を明示的に行う場合
-        mConstraint.body = null;
-        draggingBody = null;
-    }
-}
-
 function draw() {
-    background(255);
+    background('#f7f9fa'); // Duolingo UI top background match
     Engine.update(engine);
 
+    strokeCap(ROUND);
+
     // 天井（梁）を描画
-    stroke('#ccc');
-    strokeWeight(10);
-    line(width / 2 - 200, PIVOT_Y, width / 2 + 200, PIVOT_Y);
+    stroke('#e5e5e5');
+    strokeWeight(12);
+    line(width / 2 - ((BOB_RADIUS * 2 + 20) * numPendulums) / 2, PIVOT_Y, width / 2 + ((BOB_RADIUS * 2 + 20) * numPendulums) / 2, PIVOT_Y);
 
     // 振り子を描画
     for (let i = 0; i < pendulums.length; i++) {
@@ -232,8 +238,8 @@ function draw() {
         let pA = p.constraint.pointA; // 固定点
 
         // 紐
-        stroke('#777');
-        strokeWeight(3);
+        stroke('#afafaf');
+        strokeWeight(4);
         line(pA.x, pA.y, pos.x, pos.y);
 
         // 玉
@@ -249,8 +255,8 @@ function draw() {
         circle(pos.x, pos.y, p.radius * 2);
 
         // 質量が違う場合はハイライトを描画して立体感を出す
-        fill(255, 255, 255, 80);
-        circle(pos.x - p.radius * 0.3, pos.y - p.radius * 0.3, p.radius);
+        fill(255, 255, 255, 60);
+        circle(pos.x - p.radius * 0.2, pos.y - p.radius * 0.2, p.radius * 1.2);
     }
 }
 

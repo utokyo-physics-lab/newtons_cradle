@@ -1,22 +1,25 @@
 <!DOCTYPE html>
 <html lang="ja" data-theme="light">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ニュートンのゆりかご・シミュレーター</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Zen+Maru+Gothic:wght@400;700;900&display=swap"
+        rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@picocss/pico@2/css/pico.min.css">
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.9.0/p5.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/matter-js/0.19.0/matter.min.js"></script>
 </head>
+
 <body>
     <main class="container-fluid">
         <header>
             <hgroup>
-                <h1 class="logo-text">ニュートンのゆりかご</h1>
+                <h1 class="logo-text">🎯 ニュートンのゆりかご</h1>
                 <p>エネルギーと運動量（うんどうりょう）の実験をしよう！</p>
             </hgroup>
         </header>
@@ -24,36 +27,36 @@
         <div class="layout-grid">
             <section id="simulation-section">
                 <div id="canvas-container"></div>
-                <footer>
-                    <small>💡 振り子の玉を直接ドラッグして動かせるよ！離すと動き出すよ。</small>
-                </footer>
+                <div class="tip-box">
+                    💡 振り子の玉をドラッグして、離すとスイングするよ！
+                </div>
             </section>
 
             <section id="controls-section">
                 <article>
                     <div class="grid main-actions">
-                        <button id="resetBtn" class="primary">リセット</button>
+                        <button id="resetBtn" class="primary">リセットしてやり直す</button>
                     </div>
 
                     <div class="control-group">
-                        <label>振り子の数: <span id="numVal">5</span>個
+                        <label>🕹️ 振り子の数: <span id="numVal">5</span>個
                             <input type="range" id="numPendulums" value="5" min="2" max="7" step="1">
                         </label>
                     </div>
 
                     <div class="control-group">
                         <label>
-                            <input type="checkbox" id="hasGap"> 
-                            振り子同士に隙間（すきま）をあける
+                            <input type="checkbox" id="hasGap">
+                            🪝 振り子同士に隙間をあける
                         </label>
                         <small class="hint-text">※ 隙間があると、力がうまく伝わらなくて「ニュートンのゆりかご」にならないよ！試してみてね。</small>
                     </div>
 
                     <fieldset class="mass-group">
-                        <legend>振り子の重さ（質量）</legend>
+                        <legend>⚖️ 振り子の重さ（質量）</legend>
                         <label><input type="radio" name="massMode" value="uniform" checked> すべて同じ重さにする</label>
                         <label><input type="radio" name="massMode" value="individual"> バラバラにする</label>
-                        
+
                         <div id="individualMassControls" class="hidden">
                             <!-- JSで動的に追加 -->
                         </div>
@@ -64,4 +67,5 @@
     </main>
     <script src="sketch.js"></script>
 </body>
+
 </html>
