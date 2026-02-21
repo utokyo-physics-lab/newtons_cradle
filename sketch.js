@@ -11,6 +11,7 @@ let numPendulums = 5;
 let hasGap = false;
 let isUniformMass = true;
 let individualMasses = [];
+let currentRestitution = 1.0;
 
 const BOB_RADIUS = 25;
 const STRING_LENGTH = 250;
@@ -118,6 +119,15 @@ function setupUI() {
         createCradle();
     });
 
+    // 反発係数
+    const restSlider = document.getElementById('restitutionSlider');
+    const restSpan = document.getElementById('restitutionVal');
+    restSlider.addEventListener('input', (e) => {
+        currentRestitution = parseFloat(e.target.value);
+        restSpan.innerText = currentRestitution.toFixed(1);
+        createCradle();
+    });
+
     // 質量の設定モード
     const massRadios = document.querySelectorAll('input[name="massMode"]');
     const massControlsContainer = document.getElementById('individualMassControls');
@@ -210,7 +220,7 @@ function createCradle() {
         const radius = isUniformMass ? BOB_RADIUS : BOB_RADIUS * Math.sqrt(massRatio);
 
         const body = Bodies.circle(x, pivotBaseY + STRING_LENGTH, radius, {
-            restitution: 1.0,    // 1.0で完全弾性衝突。力を100%伝える
+            restitution: currentRestitution, // 画面で設定した反発係数を適用
             friction: 0.0,       // 摩擦なし
             frictionAir: 0.0,    // 空気抵抗なし
             frictionStatic: 0.0,

@@ -51,6 +51,14 @@
                         </label>
                     </div>
 
+                    <div class="control-group">
+                        <label>🎾 反発係数（はねかえりやすさ）: <span id="restitutionVal">1.0</span>
+                            <input type="range" id="restitutionSlider" value="1.0" min="0.0" max="1.5" step="0.1">
+                        </label>
+                        <small class="hint-text" style="background:#f0f8ff; color:#0066cc;">※
+                            1.0が完璧な「はねかえり」です。1.0より小さくするとすぐ止まり、大きくすると勢いが増します。</small>
+                    </div>
+
                     <fieldset class="mass-group">
                         <legend>⚖️ 振り子の重さ（質量）</legend>
                         <label><input type="radio" name="massMode" value="uniform" checked> すべて同じ重さにする</label>
