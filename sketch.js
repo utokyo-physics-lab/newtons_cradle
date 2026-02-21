@@ -3,7 +3,8 @@ const { Engine, World, Bodies, Body, Constraint, Mouse, MouseConstraint, Composi
 let engine, world;
 let pendulums = []; // { body, constraint, defaultColor, massRatio }
 let canvas;
-let draggingBody = null;
+let draggingPendulums = []; // 複数同時ドラッグ用
+let dragReferenceIndex = -1; // どれを基点にドラッグしているか
 
 // UI State
 let numPendulums = 5;
@@ -38,42 +39,63 @@ function mousePressed() {
         let p = pendulums[i];
         let pos = p.body.position;
         let d = dist(mouseX, mouseY, pos.x, pos.y);
+
         // 玉をクリックしたか判定
         if (d < p.radius * 1.5) {
-            draggingBody = p.body;
-            // ドラッグ中のみ物理演算の影響を受けないようにする
-            Body.setStatic(draggingBody, true);
+            draggingPendulums = [];
+            dragReferenceIndex = i;
+
+            // クリックした玉の位置に応じて、左側グループか右側グループかを判定してまとめて掴む
+            if (i < numPendulums / 2) {
+                // 左側を掴んだ場合：左端(0)からiまでを全部掴む
+                for (let j = 0; j <= i; j++) {
+                    draggingPendulums.push(pendulums[j]);
+                    Body.setStatic(pendulums[j].body, true);
+                }
+            } else {
+                // 右側を掴んだ場合：iから右端(length-1)までを全部掴む
+                for (let j = i; j < numPendulums; j++) {
+                    draggingPendulums.push(pendulums[j]);
+                    Body.setStatic(pendulums[j].body, true);
+                }
+            }
             break;
         }
     }
 }
 
 function mouseDragged() {
-    if (draggingBody) {
-        // 対象の振り子の情報を探す
-        let pInfo = pendulums.find(p => p.body === draggingBody);
-        if (pInfo) {
-            let pivot = pInfo.constraint.pointA;
-            let dx = mouseX - pivot.x;
-            let dy = mouseY - pivot.y;
-            let angle = Math.atan2(dy, dx);
+    if (draggingPendulums.length > 0 && dragReferenceIndex !== -1) {
+        let refP = pendulums[dragReferenceIndex];
+        let refPivot = refP.constraint.pointA;
 
-            // 紐がピンと張った状態を維持する（長さを固定）
+        let dx = mouseX - refPivot.x;
+        let dy = mouseY - refPivot.y;
+        let angle = Math.atan2(dy, dx);
+
+        // 真下(Math.PI/2)より上にはいかないように制限（オプション）
+        if (angle < 0) {
+            angle = dx < 0 ? Math.PI : 0;
+        }
+
+        // 掴んでいる全ての振り子に同じ角度を適用（平行に保つ）
+        for (let p of draggingPendulums) {
+            let pivot = p.constraint.pointA;
             let newX = pivot.x + Math.cos(angle) * STRING_LENGTH;
             let newY = pivot.y + Math.sin(angle) * STRING_LENGTH;
-
-            Body.setPosition(draggingBody, { x: newX, y: newY });
+            Body.setPosition(p.body, { x: newX, y: newY });
         }
     }
 }
 
 function mouseReleased() {
-    if (draggingBody) {
-        // ドラッグ終了で物理演算を再開
-        Body.setStatic(draggingBody, false);
-        // 手を離した瞬間の速度はゼロにし、純粋に重力で落下させる
-        Body.setVelocity(draggingBody, { x: 0, y: 0 });
-        draggingBody = null;
+    if (draggingPendulums.length > 0) {
+        for (let p of draggingPendulums) {
+            Body.setStatic(p.body, false);
+            Body.setVelocity(p.body, { x: 0, y: 0 });
+        }
+        draggingPendulums = [];
+        dragReferenceIndex = -1;
     }
 }
 
@@ -250,7 +272,7 @@ function draw() {
         noStroke();
 
         // ドラッグ中は色を少し変える
-        if (draggingBody === p.body) {
+        if (draggingPendulums.includes(p)) {
             fill(255, 127, 14); // オレンジっぽいハイライト
         } else {
             fill(p.r, p.g, p.b);

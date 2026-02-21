@@ -49,8 +49,6 @@
                             <input type="checkbox" id="hasGap" checked>
                             🪝 微小な隙間（すきま）をあける
                         </label>
-                        <small class="hint-text">※
-                            シミュレーションの世界では、球が完全にくっついていると1つの物体とみなされて力が伝わりません。チェックを入れて「わずかな隙間」を作ると、ニュートンのゆりかごが成功します！</small>
                     </div>
 
                     <fieldset class="mass-group">
@@ -65,6 +63,14 @@
                 </article>
             </section>
         </div>
+
+        <!-- 隙間に関する注釈（最下部に配置） -->
+        <footer style="margin-top: 2rem; padding-top: 1rem; border-top: 2px dashed #e5e5e5;">
+            <small class="hint-text" style="display: inline-block; background: transparent; padding: 0;">
+                ※ <strong>「微小な隙間をあける」について：</strong><br>
+                コンピュータのシミュレーションの世界では、球が完全にくっついている（隙間が0）と、複数の球が合体して1つのブロックのように扱われてしまい、力が順番に伝わりません。そのため、ごくわずかな（目に見えないレベルの）隙間を作ることで、完璧な「ニュートンのゆりかご」の挙動を再現しています。
+            </small>
+        </footer>
     </main>
     <script src="sketch.js"></script>
 </body>
