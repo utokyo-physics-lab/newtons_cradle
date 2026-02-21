@@ -27,6 +27,11 @@
         <div class="layout-grid">
             <section id="simulation-section">
                 <div id="canvas-container"></div>
+                <!-- リセットボタンをシミュレーション画面の下に配置 -->
+                <div class="grid main-actions" style="margin-top: 1rem;">
+                    <button id="resetBtn" class="primary"
+                        style="background-color: var(--brand-red); box-shadow: 0 5px 0 #cc3c3c;">🔄 リセットしてやり直す</button>
+                </div>
                 <div class="tip-box">
                     💡 振り子の玉をドラッグして、離すとスイングするよ！
                 </div>
@@ -34,10 +39,6 @@
 
             <section id="controls-section">
                 <article>
-                    <div class="grid main-actions">
-                        <button id="resetBtn" class="primary">リセットしてやり直す</button>
-                    </div>
-
                     <div class="control-group">
                         <label>🕹️ 振り子の数: <span id="numVal">5</span>個
                             <input type="range" id="numPendulums" value="5" min="2" max="7" step="1">
@@ -55,8 +56,6 @@
                         <label>🎾 反発係数（はねかえりやすさ）: <span id="restitutionVal">1.0</span>
                             <input type="range" id="restitutionSlider" value="1.0" min="0.0" max="1.5" step="0.1">
                         </label>
-                        <small class="hint-text" style="background:#f0f8ff; color:#0066cc;">※
-                            1.0が完璧な「はねかえり」です。1.0より小さくするとすぐ止まり、大きくすると勢いが増します。</small>
                     </div>
 
                     <fieldset class="mass-group">
@@ -74,9 +73,13 @@
 
         <!-- 隙間に関する注釈（最下部に配置） -->
         <footer style="margin-top: 2rem; padding-top: 1rem; border-top: 2px dashed #e5e5e5;">
-            <small class="hint-text" style="display: inline-block; background: transparent; padding: 0;">
+            <small class="hint-text"
+                style="display: block; background: transparent; padding: 0; color: #777; font-weight: 700;">
                 ※ <strong>「微小な隙間をあける」について：</strong><br>
-                コンピュータのシミュレーションの世界では、球が完全にくっついている（隙間が0）と、複数の球が合体して1つのブロックのように扱われてしまい、力が順番に伝わりません。そのため、ごくわずかな（目に見えないレベルの）隙間を作ることで、完璧な「ニュートンのゆりかご」の挙動を再現しています。
+                コンピュータのシミュレーションの世界では、球が完全にくっついている（隙間が0）と、複数の球が合体して1つのブロックのように扱われてしまい、力が順番に伝わりません。そのため、ごくわずか（0.01pxなど）の微小な隙間を作ることで、完璧な「ニュートンのゆりかご」の挙動を再現しています。計算上の距離も
+                (半径25×2) + 0.01 = 50.01 となり、物理エンジン内で独立した物体として判定させています。<br><br>
+                ※ <strong>反発係数について：</strong><br>
+                1.0が完璧な「はねかえり（完全弾性衝突）」です。1.0より小さくするとすぐ止まり、大きくすると勢いが増します。
             </small>
         </footer>
     </main>

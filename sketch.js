@@ -216,8 +216,8 @@ function createCradle() {
         // 質量設定
         const massRatio = isUniformMass ? BASE_MASS : individualMasses[i];
 
-        // 質量の違いを見た目で分かるように半径を少し変える（面積が質量に比例すると仮定）
-        const radius = isUniformMass ? BOB_RADIUS : BOB_RADIUS * Math.sqrt(massRatio);
+        // ユーザーの要望通り、質量を大きくしてもサイズ(半径)は変えず、密度(mass)のみ上げる
+        const radius = BOB_RADIUS;
 
         const body = Bodies.circle(x, pivotBaseY + STRING_LENGTH, radius, {
             restitution: currentRestitution, // 画面で設定した反発係数を適用
@@ -226,7 +226,7 @@ function createCradle() {
             frictionStatic: 0.0,
             slop: 0.0,           // オブジェクトのめり込みを許容しない（運動量伝達に極めて重要）
             inertia: Infinity,   // 回転させない
-            mass: massRatio * 10 // 重さ
+            mass: massRatio * 10 // 重さを変更（サイズは同じまま密度が上がる）
         });
 
         // 紐（制約）。stiffnessを1にして伸び縮みしないようにする
@@ -290,9 +290,15 @@ function draw() {
 
         circle(pos.x, pos.y, p.radius * 2);
 
-        // 質量が違う場合はハイライトを描画して立体感を出す
-        fill(255, 255, 255, 60);
-        circle(pos.x - p.radius * 0.2, pos.y - p.radius * 0.2, p.radius * 1.2);
+        // 質量が違う場合はテキストで重さを表示するか、色を濃くして表現する
+        fill(255);
+        textAlign(CENTER, CENTER);
+        textStyle(BOLD);
+        textSize(16);
+        let currentMass = individualMasses[i] || BASE_MASS;
+        if (!isUniformMass) {
+            text(currentMass.toFixed(1) + "kg", pos.x, pos.y);
+        }
     }
 }
 
