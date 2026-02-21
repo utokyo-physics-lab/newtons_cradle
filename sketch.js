@@ -166,8 +166,12 @@ function createCradle() {
     const pivotBaseY = PIVOT_Y;
 
     // 隙間設定
+    // ニュートンのゆりかごをシミュレーションエンジンで正しく動かすには微小な隙間が必要
+    // 完全に隙間がない(0)と、複数の球が一体とみなされて力が正しく伝わらない現象が起きる
     const diameter = BOB_RADIUS * 2;
-    const gap = hasGap ? 20 : 0;
+    // hasGap が false のときは隙間なし（シミュレーション失敗する例）
+    // hasGap が true のときは微小な隙間（シミュレーション成功する例）
+    const gap = hasGap ? 0.01 : 0;
     const spacing = diameter + gap;
 
     // 中央に配置するためのオフセット計算
